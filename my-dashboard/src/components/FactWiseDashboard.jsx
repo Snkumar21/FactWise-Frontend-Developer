@@ -50,7 +50,7 @@ const SkillsRenderer = ({ value }) => {
 export default function FactWiseDashboard() {
     const gridRef = useRef();
 
-    const [rowData, setRowData] = useState(employeesData);
+    const [rowData] = useState(employeesData);
     const [quickFilter, setQuickFilter] = useState('');
 
 
