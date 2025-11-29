@@ -1,7 +1,9 @@
-import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { AgGridReact } from 'ag-grid-react';
+import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 const employeesData = [
     { "id": 1, "firstName": "John", "lastName": "Smith", "email": "john.smith@company.com", "department": "Engineering", "position": "Senior Developer", "salary": 95000, "hireDate": "2021-03-15", "age": 32, "location": "New York", "performanceRating": 4.2, "projectsCompleted": 12, "isActive": true, "skills": ["JavaScript", "React", "Node.js"], "manager": "Sarah Johnson" },
@@ -57,7 +59,12 @@ const SkillsRenderer = ({ value }) => {
 
 // MAIN COMPONENT
 export default function FactWiseDashboard() {
-    const gridRef = useRef();
+    const gridRef = useRef(null);
+    const [gridApi, setGridApi] = useState(null);
+
+    const onGridReady = (params) => {
+        setGridApi(params.api);
+    };
 
     const [rowData] = useState(employeesData);
     const [quickFilter, setQuickFilter] = useState("");
@@ -145,8 +152,10 @@ export default function FactWiseDashboard() {
 
     // Quick Filter
     useEffect(() => {
-        gridRef.current?.api.setQuickFilter(quickFilter);
-    }, [quickFilter]);
+        if (gridApi) {
+            gridApi.setQuickFilter(quickFilter);
+        }
+    }, [quickFilter, gridApi]);
 
     return (
         <div className="p-6 min-h-screen bg-gray-50">
@@ -201,6 +210,7 @@ export default function FactWiseDashboard() {
                         columnDefs={columnDefs}
                         defaultColDef={defaultColDef}
                         animateRows={true}
+                        onGridReady={onGridReady}
                     />
                 </div>
             </div>
