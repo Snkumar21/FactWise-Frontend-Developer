@@ -1,44 +1,56 @@
 import React, { useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
 
-// QUARTZ THEME
+// AG Grid Quartz Theme + All Modules
+import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
+ModuleRegistry.registerModules([AllCommunityModule]);
 
+// FIX: Correct JSON filename
 import data from "../data/employee.json";
 
 const FactWiseDashboard = () => {
 
     const rowData = data.employees;
 
-    const colDefs = useMemo(() => [
-        { field: "id", filter: true, sortable: true, width: 90 },
-        { field: "firstName", filter: true, sortable: true },
-        { field: "lastName", filter: true, sortable: true },
-        { field: "email", filter: true, width: 260 },
-        { field: "department", filter: true, sortable: true },
-        { field: "position", filter: true, sortable: true },
-        { field: "salary", filter: true, sortable: true },
-        { field: "hireDate", filter: true },
-        { field: "age", filter: true },
-        { field: "location", filter: true },
-        { field: "performanceRating", filter: true },
-        { field: "projectsCompleted", filter: true },
-        { 
-            field: "isActive", 
-            headerName: "Active", 
-            width: 120,
-            cellRenderer: (param) =>
-                param.value ? "✅ Active" : "❌ Inactive"
-        },
-        {
-            field: "skills",
-            headerName: "Skills",
-            width: 230,
-            cellRenderer: (params) => params.value.join(", ")
-        },
-        { field: "manager", filter: true }
-    ], []);
+    const colDefs = useMemo(
+        () => [
+            { field: "id", width: 90 },
+            { field: "firstName" },
+            { field: "lastName" },
+            { field: "email", width: 260 },
+            { field: "department" },
+            { field: "position" },
+            { field: "salary" },
+            { field: "hireDate" },
+            { field: "age" },
+            { field: "location" },
+            { field: "performanceRating" },
+            { field: "projectsCompleted" },
+            {
+                field: "isActive",
+                headerName: "Active",
+                width: 120,
+                cellRenderer: (param) =>
+                    param.value ? "✅ Active" : "❌ Inactive",
+            },
+            {
+                field: "skills",
+                headerName: "Skills",
+                width: 230,
+                cellRenderer: (params) => params.value.join(", "),
+            },
+            { field: "manager" },
+        ],
+        []
+    );
+
+    const defaultColDef = {
+        sortable: true,
+        filter: true,
+        resizable: true,
+    };
 
     const gridOptions = {
         animateRows: true,
@@ -47,9 +59,10 @@ const FactWiseDashboard = () => {
 
     return (
         <div className="ag-theme-quartz" style={{ height: 600, width: "100%" }}>
-            <AgGridReact 
-                rowData={rowData} 
-                columnDefs={colDefs} 
+            <AgGridReact
+                rowData={rowData}
+                columnDefs={colDefs}
+                defaultColDef={defaultColDef}
                 gridOptions={gridOptions}
             />
         </div>
