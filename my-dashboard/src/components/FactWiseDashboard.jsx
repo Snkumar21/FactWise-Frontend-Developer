@@ -57,15 +57,12 @@ const FactWiseDashboard = () => {
         const api = gridApiRef.current;
         if (!api) return;
 
-        // AG Grid v34+ prefers setGridOption for quickFilterText, but setQuickFilter may still exist.
         if (typeof api.setGridOption === 'function') {
             api.setGridOption("quickFilterText", searchText);
-            // also refresh view
             api.onFilterChanged?.();
         } else if (typeof api.setQuickFilter === 'function') {
             api.setQuickFilter(searchText);
         } else {
-            // last resort: try setting the gridOptions and refreshing
             try {
                 api.setFilterModel && api.setFilterModel(api.getFilterModel());
             } catch (e) {
