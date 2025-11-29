@@ -26,12 +26,16 @@ const employeesData = [
     { "id": 20, "firstName": "Stephanie", "lastName": "Lopez", "email": "stephanie.lopez@company.com", "department": "Marketing", "position": "Digital Marketing Specialist", "salary": 64000, "hireDate": "2021-12-20", "age": 26, "location": "Phoenix", "performanceRating": 3.8, "projectsCompleted": 7, "isActive": true, "skills": ["Google Ads", "Facebook Ads", "Email Marketing"], "manager": "Michael Brown" }
 ];
 
+// RENDER BADGES
 const ActiveBadge = ({ value }) => {
-    const text = value ? 'Active' : 'Inactive';
-    const bg = value ? 'bg-green-100' : 'bg-gray-200';
-    const textColor = value ? 'text-green-800' : 'text-gray-600';
+    const text = value ? "Active" : "Inactive";
+    const bg = value ? "bg-green-100" : "bg-gray-200";
+    const textColor = value ? "text-green-800" : "text-gray-600";
+
     return (
-        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${bg} ${textColor}`}>{text}</span>
+        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${bg} ${textColor}`}>
+            {text}
+        </span>
     );
 };
 
@@ -39,63 +43,109 @@ const SkillsRenderer = ({ value }) => {
     if (!Array.isArray(value)) return null;
     return (
         <div className="flex flex-wrap gap-1">
-            {value.map((s, i) => (
-                <span key={i} className="text-[11px] px-2 py-0.5 rounded-md border border-gray-200">{s}</span>
+            {value.map((skill, index) => (
+                <span
+                    key={index}
+                    className="text-[11px] px-2 py-0.5 rounded-md border border-gray-300 bg-white"
+                >
+                    {skill}
+                </span>
             ))}
         </div>
     );
 };
 
-// Main component
+// MAIN COMPONENT
 export default function FactWiseDashboard() {
     const gridRef = useRef();
 
     const [rowData] = useState(employeesData);
-    const [quickFilter, setQuickFilter] = useState('');
+    const [quickFilter, setQuickFilter] = useState("");
 
-
-    // Derived stats
+    // Stats
     const stats = useMemo(() => {
         const total = rowData.length;
-        const avgSalary = Math.round(rowData.reduce((s, r) => s + (r.salary || 0), 0) / total || 0);
+        const avgSalary = Math.round(
+            rowData.reduce((s, r) => s + (r.salary || 0), 0) / total
+        );
         const activeCount = rowData.filter(r => r.isActive).length;
-        const byDept = rowData.reduce((acc, r) => { acc[r.department] = (acc[r.department] || 0) + 1; return acc }, {});
+        const byDept = rowData.reduce((acc, r) => {
+            acc[r.department] = (acc[r.department] || 0) + 1;
+            return acc;
+        }, {});
+
         return { total, avgSalary, activeCount, byDept };
     }, [rowData]);
 
-    const columnDefs = useMemo(() => [
-        { headerName: 'ID', field: 'id', width: 80, sortable: true, filter: 'agNumberColumnFilter' },
-        { headerName: 'Name', valueGetter: params => `${params.data.firstName} ${params.data.lastName}`, sort: 'asc', sortable: true, filter: 'agTextColumnFilter', minWidth: 180 },
-        { headerName: 'Email', field: 'email', sortable: true, filter: 'agTextColumnFilter', minWidth: 220 },
-        { headerName: 'Department', field: 'department', sortable: true, filter: 'agSetColumnFilter', rowGroup: false },
-        { headerName: 'Position', field: 'position', sortable: true, filter: 'agTextColumnFilter', minWidth: 160 },
-        { headerName: 'Salary', field: 'salary', sortable: true, filter: 'agNumberColumnFilter', valueFormatter: params => params.value ? `$${params.value.toLocaleString()}` : '', aggFunc: 'sum' },
-        { headerName: 'Hire Date', field: 'hireDate', sortable: true, filter: 'agDateColumnFilter', valueFormatter: params => params.value ? new Date(params.value).toLocaleDateString() : '' },
-        { headerName: 'Age', field: 'age', sortable: true, filter: 'agNumberColumnFilter', width: 90 },
-        { headerName: 'Location', field: 'location', sortable: true, filter: 'agSetColumnFilter' },
-        { headerName: 'Perf.', field: 'performanceRating', sortable: true, filter: 'agNumberColumnFilter', width: 110 },
-        { headerName: 'Projects', field: 'projectsCompleted', sortable: true, filter: 'agNumberColumnFilter', width: 110 },
-        { headerName: 'Active', field: 'isActive', cellRenderer: params => <ActiveBadge value={params.value} />, width: 110, sortable: true, filter: 'agSetColumnFilter' },
-        { headerName: 'Skills', field: 'skills', cellRenderer: params => <SkillsRenderer value={params.value} />, minWidth: 200, suppressSizeToFit: true },
-        { headerName: 'Manager', field: 'manager', sortable: true, filter: 'agTextColumnFilter' }
-    ], []);
+    // Column Definitions
+    const columnDefs = useMemo(
+        () => [
+            { headerName: "ID", field: "id", width: 80 },
+            {
+                headerName: "Name",
+                valueGetter: p => `${p.data.firstName} ${p.data.lastName}`,
+                sortable: true,
+                filter: "agTextColumnFilter",
+                minWidth: 160,
+            },
+            { headerName: "Email", field: "email", minWidth: 220 },
+            { headerName: "Department", field: "department", filter: "agSetColumnFilter" },
+            { headerName: "Position", field: "position", minWidth: 160 },
+            {
+                headerName: "Salary",
+                field: "salary",
+                valueFormatter: p =>
+                    p.value ? `$${p.value.toLocaleString()}` : "",
+                filter: "agNumberColumnFilter",
+            },
+            {
+                headerName: "Hire Date",
+                field: "hireDate",
+                valueFormatter: p =>
+                    p.value ? new Date(p.value).toLocaleDateString() : "",
+            },
+            { headerName: "Age", field: "age", width: 100 },
+            { headerName: "Location", field: "location" },
+            { headerName: "Perf.", field: "performanceRating", width: 110 },
+            { headerName: "Projects", field: "projectsCompleted", width: 110 },
+            {
+                headerName: "Active",
+                field: "isActive",
+                width: 120,
+                cellRenderer: p => <ActiveBadge value={p.value} />,
+            },
+            {
+                headerName: "Skills",
+                field: "skills",
+                minWidth: 200,
+                cellRenderer: p => <SkillsRenderer value={p.value} />,
+            },
+            { headerName: "Manager", field: "manager" },
+        ],
+        []
+    );
 
-    const defaultColDef = useMemo(() => ({
-        resizable: true,
-        sortable: true,
-        filter: true,
-        floatingFilter: true,
-        minWidth: 80,
-    }), []);
+    const defaultColDef = useMemo(
+        () => ({
+            resizable: true,
+            sortable: true,
+            filter: true,
+            floatingFilter: true,
+            minWidth: 80,
+        }),
+        []
+    );
 
-    // Quick CSV export
-    const onExport = useCallback(() => {
-        gridRef.current.api.exportDataAsCsv({ fileName: 'factwise_employees.csv' });
-    }, []);
+    // Export CSV
+    const onExport = () => {
+        gridRef.current?.api.exportDataAsCsv({
+            fileName: "factwise_employees.csv",
+        });
+    };
 
-    // Quick filter handler
+    // Quick Filter
     useEffect(() => {
-        if (gridRef.current) gridRef.current.api.setQuickFilter(quickFilter);
+        gridRef.current?.api.setQuickFilter(quickFilter);
     }, [quickFilter]);
 
     return (
@@ -104,65 +154,55 @@ export default function FactWiseDashboard() {
                 <header className="flex items-center justify-between mb-6">
                     <div>
                         <h1 className="text-2xl font-semibold">FactWise — Employee Dashboard</h1>
-                        <p className="text-sm text-gray-600">Client-side AG Grid implementation to showcase sorting, filtering and handling datasets efficiently.</p>
+                        <p className="text-sm text-gray-600">
+                            Client-side AG Grid implementation to showcase sorting, filtering and handling datasets efficiently.
+                        </p>
                     </div>
+
                     <div className="flex gap-2 items-center">
                         <input
-                        placeholder="Quick search (name, email, dept...)"
-                        className="px-3 py-2 border rounded-md shadow-sm w-72"
-                        value={quickFilter}
-                        onChange={e => setQuickFilter(e.target.value)}
+                            placeholder="Quick search (name, email, dept...)"
+                            value={quickFilter}
+                            onChange={(e) => setQuickFilter(e.target.value)}
+                            className="px-3 py-2 border rounded-md text-sm"
                         />
-                        <button onClick={onExport} className="px-3 py-2 rounded-md border hover:bg-gray-100">Export CSV</button>
+                        <button
+                            onClick={onExport}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm"
+                        >
+                            Export CSV
+                        </button>
                     </div>
                 </header>
-        
-                {/* Summary cards */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
-                    <div className="bg-white p-4 rounded-lg shadow-sm">
-                        <div className="text-xs text-gray-500">Total employees</div>
-                        <div className="text-xl font-bold">{stats.total}</div>
+
+                {/* Stats Section */}
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div className="p-4 bg-white rounded-lg shadow text-center">
+                        <h3 className="text-sm text-gray-600">Total Employees</h3>
+                        <p className="text-xl font-semibold">{stats.total}</p>
                     </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm">
-                        <div className="text-xs text-gray-500">Average salary</div>
-                        <div className="text-xl font-bold">${stats.avgSalary.toLocaleString()}</div>
+
+                    <div className="p-4 bg-white rounded-lg shadow text-center">
+                        <h3 className="text-sm text-gray-600">Avg Salary</h3>
+                        <p className="text-xl font-semibold">${stats.avgSalary.toLocaleString()}</p>
                     </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm">
-                        <div className="text-xs text-gray-500">Active employees</div>
-                        <div className="text-xl font-bold">{stats.activeCount}</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg shadow-sm">
-                        <div className="text-xs text-gray-500">Departments</div>
-                        <div className="text-sm mt-2">
-                            {Object.entries(stats.byDept).map(([k, v]) => (
-                                <div key={k} className="flex items-center gap-2"><span className="font-medium">{k}</span><span className="text-gray-500">({v})</span></div>
-                            ))}
-                        </div>
+
+                    <div className="p-4 bg-white rounded-lg shadow text-center">
+                        <h3 className="text-sm text-gray-600">Active Employees</h3>
+                        <p className="text-xl font-semibold">{stats.activeCount}</p>
                     </div>
                 </div>
 
-                {/* Main grid area */}
-                <div className="bg-white rounded-lg shadow overflow-hidden">
-                    <div className="ag-theme-alpine" style={{ height: 520, width: '100%' }}>
-                        <AgGridReact
+                {/* AG Grid */}
+                <div className="ag-theme-alpine" style={{ height: 600, width: "100%" }}>
+                    <AgGridReact
                         ref={gridRef}
                         rowData={rowData}
                         columnDefs={columnDefs}
                         defaultColDef={defaultColDef}
                         animateRows={true}
-                        pagination={true}
-                        paginationPageSize={10}
-                        rowSelection={'multiple'}
-                        suppressRowClickSelection={true}
-                        domLayout={'normal'}
-                        rowBuffer={0}
-                        rowHeight={48}
-                        onGridReady={params => { params.api.sizeColumnsToFit(); window.addEventListener('resize', () => params.api.sizeColumnsToFit()); }}
-                        />
-                    </div>
+                    />
                 </div>
-
-                <footer className="mt-4 text-sm text-gray-500">Tip: Try filtering 'Department' or using the quick search to find employees fast. Grid is client-side and optimized for smooth interactions with large data sets.</footer>
             </div>
         </div>
     );
