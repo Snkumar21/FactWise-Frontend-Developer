@@ -1,13 +1,11 @@
 import React from 'react';
 import FactWiseDashboard from './components/FactWiseDashboard';
-
-// Import AG Grid CSS
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
+import './App.css';
 
 function App() {
   return (
-    <div className="ag-theme-alpine" style={{ height: '100vh', width: '100%' }}>
+    <div className="app-container">
+      <h1 className="title">FactWise Employee Dashboard</h1>
       <FactWiseDashboard />
     </div>
   );
